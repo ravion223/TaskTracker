@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<form method="post" action="{% url 'task-creation' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<script>
+    flatpickr('.datepicker', {
+        dateFormat: 'Y-m-d',
+        enableTime: false,
+    });
+</script>
+{% endblock %}

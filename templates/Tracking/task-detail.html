@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container mt-3">
+  <h2>
+    {{ task.title }}
+  </h2>
+  <br>
+  {{ task.description }}
+  <br>
+  <p>
+    Status: <span class="badge text-bg-primary">{{ task.status }}</span>
+  </p>
+  <p>
+    Priority: <span class="badge text-bg-secondary">{{ task.priority }}</span>
+  </p>
+  <p>Due to: {{ task.due_date }}</p>
+  <button class="btn btn-danger">Delete</button>
+  <button class="btn btn-warning">Edit</button>
+</div>
+{% endblock %}

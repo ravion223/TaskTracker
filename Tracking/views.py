@@ -1,6 +1,8 @@
+from django.forms import BaseModelForm
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from .models import Task
 from .forms import TaskCreationForm
 
@@ -23,4 +25,13 @@ class TaskCreateView(CreateView):
     model = Task
     template_name = 'Tracking/task-create.html'
     form_class = TaskCreationForm
+    success_url = reverse_lazy('tasks-list')
+
+    def form_valid(self, form: TaskCreationForm):
+        form.instance.user_id = self.request.user.id
+        return super().form_valid(form)
+    
+
+class TaskDeleteView(DeleteView):
+    model = Task
     success_url = reverse_lazy('tasks-list')

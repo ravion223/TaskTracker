@@ -2,9 +2,9 @@ from django.forms import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from .models import Task
-from .forms import TaskCreationForm
+from .forms import TaskCreationForm, TaskUpdateForm
 
 # Create your views here.
 
@@ -35,3 +35,12 @@ class TaskCreateView(CreateView):
 class TaskDeleteView(DeleteView):
     model = Task
     success_url = reverse_lazy('tasks-list')
+
+
+class TaskUpdateView(UpdateView):
+    model = Task
+    template_name = 'Tracking/task-update.html'
+    form_class = TaskUpdateForm
+    
+    def get_success_url(self) -> str:
+        return reverse_lazy('task-detail', kwargs={'pk': self.object.pk})

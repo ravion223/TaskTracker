@@ -20,6 +20,10 @@
       <button class="btn btn-danger">Delete</button>
     </a>
   </div>
-  <button class="btn btn-warning">Edit</button>
+  <div>
+    <a href="{% url 'task-update' task.pk %}">
+      <button class="btn btn-warning">Edit</button>
+    </a>
+  </div>
 </div>
 {% endblock %}

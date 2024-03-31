@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Update your task</h1>
+    <form method="post" action="{% url 'task-update' task.pk %}">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+{% endblock body %}

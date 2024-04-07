@@ -1,3 +1,19 @@
 a {
     text-decoration: none;
 }
+
+.low-bg-color {
+    background-color: green; /* Define your custom background color here */
+}
+
+.medium-bg-color {
+    background-color: orange; /* Define your custom background color here */
+}
+
+.high-bg-color {
+    background-color: red; /* Define your custom background color here */
+}
+
+.critical-bg-color {
+    background-color: darkred; /* Define your custom background color here */
+}

@@ -51,3 +51,14 @@ class TaskUpdateForm(forms.ModelForm):
             'description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Description's title"}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Select due date', 'type': 'date'}),
         }
+
+
+class TaskFilterForm(forms.Form):
+    STATUS_CHOICES = [
+        ('', 'All'),
+        ('todo', "To Do"),
+        ('in_progress', "In progress"),
+        ('done', 'Done')
+    ]
+
+    status = forms.ChoiceField(choices=STATUS_CHOICES, label='status', required=False)

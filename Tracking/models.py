@@ -33,3 +33,31 @@ class Task(models.Model):
         ordering = ["due_date"]
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
+
+
+class Comment(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"comment to {self.task.title} by {self.author}"
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
+
+
+class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profiles')
+
+    name_surname = models.CharField(max_length=63, null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    profile_pic = models.ImageField(blank=True, null=True, upload_to="profile/")
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f'profile of {self.user.username}'

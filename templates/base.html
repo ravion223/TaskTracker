@@ -15,6 +15,21 @@
             <a href="{% url 'tasks-list' %}">
                 <h1 class="navbar-brand">TaskTracker</h1>
             </a>
+            {% if request.user.is_authenticated %}
+                <div class="dropdown mt-1 ms-2 me-3">
+                    {% if profile.profile_pic %}
+                        <img class="rounded-circle" src="{{ profile.profile_pic.url }}" width="40" height="40" class="dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                    {% else %}
+                        <img class="rounded-circle" src="{% static 'img/default-profile-pic.jpg' %}" width="40" height="40" class="dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                    {% endif %}
+                <!-- <img class="rounded-circle" src="{{ user.profile.profile_pic }}" width="40" height="40" class="dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;"> -->
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li><a class="dropdown-item" href="#">Edit profile</a></li>
+                        <li><a class="dropdown-item" href="authentication/logout">Logout</a></li>
+                    </ul>
+                </div>
+            {% endif %}
         </div>
     </nav>
 

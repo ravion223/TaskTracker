@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<h1>Are you sure that you want to delete this comment?</h1>
+{{ comment.content }}
+
+<form method="post" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Delete</button>
+</form>
+
+{% endblock body %}

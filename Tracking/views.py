@@ -1,3 +1,4 @@
+from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.http import HttpResponse, HttpResponseRedirect
@@ -6,9 +7,11 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserChangeForm
 from .mixins import UserIsOwnerMixin
 from .models import Task, Comment, Profile
-from .forms import TaskCreationForm, TaskUpdateForm, TaskFilterForm, TaskCommentForm
+from .forms import TaskCreationForm, TaskUpdateForm, TaskFilterForm, TaskCommentForm, ProfileUpdateForm
 
 
 # Create your views here.
@@ -66,8 +69,27 @@ class TasksDetailView(DetailView):
             return redirect('task-detail', pk=comment.task.pk)
         else:
             raise ValidationError("Bad input")
+        
 
+class MyProfileDetailView(LoginRequiredMixin, View):
+    model = Profile
+    template_name = 'Tracking/my-profile.html'
+    context_object_name = 'myprofile'
 
+    def get(self, request, *args, **kwargs):
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        context = {
+            'profile': profile
+        }
+
+        return render(
+            request,
+            self.template_name,
+            context
+        )
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -126,7 +148,31 @@ class TaskUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
         context['profile'] = profile
         
         return context
+
+
+class MyProfileUpdateView(UpdateView):
+    model = Profile
+    template_name = 'Tracking/profile-update.html'
+    form_class = ProfileUpdateForm
+    success_url = reverse_lazy('my-profile')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, user=self.request.user)
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        context['profile'] = profile
+        
+        return context
+
+    def form_valid(self, form: ProfileUpdateForm):
+        # form.instance.user_id = self.request.user.id
+        return super().form_valid(form)
 
 class TaskCompleteView(LoginRequiredMixin, UserIsOwnerMixin, View):
     def get_object(self):

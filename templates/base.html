@@ -24,8 +24,8 @@
                     {% endif %}
                 <!-- <img class="rounded-circle" src="{{ user.profile.profile_pic }}" width="40" height="40" class="dropdown-toggle" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;"> -->
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item" href="#">Profile</a></li>
-                        <li><a class="dropdown-item" href="#">Edit profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'my-profile' %}">Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'my-profile-update' %}">Edit profile</a></li>
                         <li><a class="dropdown-item" href="authentication/logout">Logout</a></li>
                     </ul>
                 </div>

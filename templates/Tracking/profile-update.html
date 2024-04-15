@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<form method="post" action="{% url 'my-profile-update' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Update</button>
+</form>
+
+{% endblock body %}

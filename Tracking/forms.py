@@ -1,5 +1,5 @@
 from django import forms
-from .models import Task, Comment
+from .models import Task, Comment, Profile
 
 class TaskCreationForm(forms.ModelForm):
     class Meta:
@@ -50,6 +50,28 @@ class TaskUpdateForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Task's title"}),
             'description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Description's title"}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Select due date', 'type': 'date'}),
+        }
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = [
+            'name_surname',
+            'bio',
+            'email',
+            'profile_pic'
+        ]
+        labels = {
+            'name_surname' : '',
+            'bio': '',
+            'email': '',
+            'profile_pic': ''
+        }
+        widgets = {
+            'name_surname': forms.TextInput(attrs={'class': 'form-class', 'placeholder': 'Name and surname'}),
+            'bio': forms.TextInput(attrs={'class': 'form-class', 'placeholder': 'Bio'}),
+            'email': forms.EmailInput(attrs={'class': 'form-class', 'placeholder': 'Email'}),
         }
 
 

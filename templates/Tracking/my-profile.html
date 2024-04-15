@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+<br>
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-6 text-center">
+            {% if profile.profile_pic %}
+                <img class="rounded-circle mb-4" src="{{ profile.profile_pic.url }}" width="200" height="200" alt="Profile Picture">
+            {% else %}
+                <img class="rounded-circle mb-4" src="{% static 'img/default-profile-pic.jpg' %}" width="200" height="200" alt="Default Profile Picture">
+            {% endif %}
+            <h2>{{ profile.user.username }}</h2>
+            <p class="lead">{{ profile.name_surname }}</p>
+            <p>Bio: {{ profile.bio }}</p>
+            {% if profile.user.email is not Null %}
+                <p>Email: {{ profile.email }}</p>
+            {% else %}
+                <p>Email: not specified</p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock body %}

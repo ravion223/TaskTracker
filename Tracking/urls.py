@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import TasksListView, TasksDetailView, TaskCreateView, TaskDeleteView, TaskUpdateView, TaskCompleteView, CommentUpdateView, CommentDeleteView, MyProfileDetailView, MyProfileUpdateView
+from .views import TasksListView, TasksDetailView, TaskCreateView, TaskDeleteView, TaskUpdateView, TaskCompleteView, CommentUpdateView, CommentDeleteView, MyProfileDetailView, MyProfileUpdateView, update_task_status
 
 
 urlpatterns = [
@@ -14,4 +14,5 @@ urlpatterns = [
     path('comment/delete/<int:pk>/', login_required(CommentDeleteView.as_view()), name='comment-delete'),
     path('my-profile/', MyProfileDetailView.as_view(), name='my-profile'),
     path('my-profile/update/', MyProfileUpdateView.as_view(), name='my-profile-update'),
+    path('update_task_status/<int:pk>/<slug:status>/', update_task_status, name='update_task_status'),
 ]

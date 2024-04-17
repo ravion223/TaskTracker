@@ -1,7 +1,7 @@
 from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, View
@@ -18,7 +18,7 @@ from .forms import TaskCreationForm, TaskUpdateForm, TaskFilterForm, TaskComment
 
 class TasksListView(ListView):
     model = Task
-    template_name = 'Tracking/tasks-list.html'
+    template_name = 'Tracking/kanban-board.html'
     context_object_name = 'tasks'
 
     def get_queryset(self):
@@ -148,6 +148,13 @@ class TaskUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
         context['profile'] = profile
         
         return context
+    
+
+def update_task_status(request, pk, status):
+    task = get_object_or_404(Task, pk=pk)
+    task.status = status
+    task.save()
+    return JsonResponse({'success': True})
 
 
 class MyProfileUpdateView(UpdateView):

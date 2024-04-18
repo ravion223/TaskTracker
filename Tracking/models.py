@@ -19,6 +19,7 @@ class Task(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    workspace = models.ForeignKey('Workspace', on_delete=models.CASCADE, related_name='task_set', blank=True, null=True)
 
     title = models.CharField(max_length=63)
     description = models.TextField()
@@ -61,3 +62,14 @@ class Profile(models.Model):
 
     def __str__(self) -> str:
         return f'profile of {self.user.username}'
+    
+
+class Workspace(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workspaces')
+    tasks = models.ManyToManyField(Task, related_name='workspaces', blank=True)
+    allowed_users = models.ManyToManyField(User, related_name='allowed_workspace', blank=True)
+
+    title = models.CharField(max_length=63)
+
+    def __str__(self) -> str:
+        return f"Workspace {self.title} - {self.user.username}"

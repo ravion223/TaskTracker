@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Your workspaces:</h1>
+<div class="container">
+    <ul>
+        {% if workspaces %}
+            {% for workspace in workspaces %}
+            <li>
+                <a href="{% url 'workspace-tasks-list' workspace.pk %}">
+                    {{ workspace.title }}
+                </a>
+            </li>
+            {% endfor %}
+        {% else %}
+            <h3>You don't have any workspaces yet</h3>
+        {% endif %}
+        <a href="{% url 'workspace-creation' %}">
+            <button class="btn btn-primary">Create workspace</button>
+        </a>
+    </ul>
+</div>
+
+{% endblock body %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<form method="post">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <button type="submit">Add User to Workspace</button>
+</form>
+{% if error_message %}
+    <p>{{ error_message }}</p>
+{% endif %}
+
+{% endblock body %}

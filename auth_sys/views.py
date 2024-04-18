@@ -35,7 +35,7 @@ def login_view(request):
             else:
                 messages.error(request, "Wrong username or password")
 
-            return redirect('tasks-list')
+            return redirect('main-page')
     else:
         form = AuthenticationForm()
     

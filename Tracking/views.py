@@ -1,7 +1,8 @@
 from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
+from django.db.models import Q
 from django.forms import BaseModelForm
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, View
@@ -9,16 +10,37 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.models import User
 from .mixins import UserIsOwnerMixin
-from .models import Task, Comment, Profile
-from .forms import TaskCreationForm, TaskUpdateForm, TaskFilterForm, TaskCommentForm, ProfileUpdateForm
+from .models import Task, Comment, Profile, Workspace
+from .forms import TaskCreationForm, TaskUpdateForm, TaskFilterForm, TaskCommentForm, ProfileUpdateForm, WorkspaceCreationForm
 
 
 # Create your views here.
 
+class WorkspacesListView(ListView):
+    model = Workspace
+    template_name = 'Tracking/main-page.html'
+    context_object_name = 'workspaces'
+
+    def get_queryset(self):
+        return Workspace.objects.filter(Q(user=self.request.user) | Q(allowed_users=self.request.user)).distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        context['profile'] = profile
+
+        return context
+
+
 class TasksListView(ListView):
     model = Task
-    template_name = 'Tracking/kanban-board.html'
+    template_name = 'Tracking/tasks-list.html'
     context_object_name = 'tasks'
 
     def get_queryset(self):
@@ -46,6 +68,12 @@ class TasksDetailView(DetailView):
     template_name = 'Tracking/task-detail.html'
     context_object_name = 'task'
 
+    def dispatch(self, request, *args, **kwargs):
+        task = self.get_object()
+        if task.user != self.request.user:
+            raise Http404("You are not allowed to access this task.")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -71,6 +99,56 @@ class TasksDetailView(DetailView):
             raise ValidationError("Bad input")
         
 
+class WorkspaceTasksView(View):
+    template_name = 'Tracking/workspace-tasks.html'
+    form_class = TaskFilterForm
+
+    def dispatch(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+
+        if workspace.user != self.request.user and not workspace.allowed_users.filter(id=self.request.user.id).exists():
+            raise Http404("You are not allowed to access this workspace.")
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+        queryset = workspace.tasks.all()
+
+        status = self.request.GET.get('status', '')
+        priority = self.request.GET.get('priority', '')
+
+        if status:
+            queryset = queryset.filter(status=status)
+
+        elif priority:
+            queryset = queryset.filter(priority=priority)
+
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+        tasks = self.get_queryset(**kwargs)
+
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        context = {
+            'workspace': workspace,
+            'tasks': tasks,
+            'profile': profile,
+            'form': self.form_class
+        }
+
+        return render(
+            request,
+            self.template_name,
+            context
+        )
+
+        
+
 class MyProfileDetailView(LoginRequiredMixin, View):
     model = Profile
     template_name = 'Tracking/my-profile.html'
@@ -92,11 +170,64 @@ class MyProfileDetailView(LoginRequiredMixin, View):
         )
 
 
-class TaskCreateView(LoginRequiredMixin, CreateView):
-    model = Task
+class TaskCreateView(LoginRequiredMixin, View):
     template_name = 'Tracking/task-create.html'
     form_class = TaskCreationForm
-    success_url = reverse_lazy('tasks-list')
+
+    def get(self, request, *args, **kwargs):
+        workspace = Workspace.objects.get(id=kwargs.get('workspace_id'))
+        form = self.form_class()
+
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        context = {
+            'workspace': workspace,
+            'form': form,
+            'profile': profile
+        }
+        return render(
+            request,
+            self.template_name,
+            context
+        )
+    
+    def post(self, request, *args, **kwargs):
+        workspace = Workspace.objects.get(id=kwargs.get('workspace_id'))
+        form = self.form_class(request.POST)
+        context = {
+            'workspace': workspace,
+            'form': form
+        }
+        if form.is_valid():
+            form.instance.user_id = self.request.user.id
+            workspace_id = kwargs.get('workspace_id')
+            workspace = Workspace.objects.get(id=workspace_id)
+            task = form.save(commit=False)
+            task.workspace = workspace
+            task.save()
+            # Add the task to the workspace's tasks
+            workspace.tasks.add(task)
+            return redirect('workspace-tasks-list', workspace_id=workspace_id)
+        return render(
+            request,
+            self.template_name,
+            context
+        )
+
+    # def form_valid(self, form: TaskCreationForm):
+    #     form.instance.user_id = self.request.user.id
+    #     return super().form_valid(form)
+
+
+class WorkspaceCreateView(CreateView):
+    model = Workspace
+    template_name = 'Tracking/workspace-create.html'
+    form_class = WorkspaceCreationForm
+    
+    def get_success_url(self) -> str:
+        return reverse_lazy('workspace-tasks-list', kwargs={'workspace_id': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -108,11 +239,11 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         context['profile'] = profile
 
         return context
-
-    def form_valid(self, form: TaskCreationForm):
+    
+    def form_valid(self, form):
         form.instance.user_id = self.request.user.id
         return super().form_valid(form)
-    
+
 
 class TaskDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
     model = Task
@@ -148,13 +279,6 @@ class TaskUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
         context['profile'] = profile
         
         return context
-    
-
-def update_task_status(request, pk, status):
-    task = get_object_or_404(Task, pk=pk)
-    task.status = status
-    task.save()
-    return JsonResponse({'success': True})
 
 
 class MyProfileUpdateView(UpdateView):
@@ -190,7 +314,7 @@ class TaskCompleteView(LoginRequiredMixin, UserIsOwnerMixin, View):
         task = self.get_object()
         task.status = 'done'
         task.save()
-        return HttpResponseRedirect(reverse_lazy('tasks-list'))
+        return HttpResponseRedirect(reverse_lazy('workspace-tasks-list', kwargs={'workspace_id': task.workspace.id}))
 
 
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
@@ -234,3 +358,27 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
         context['profile'] = profile
         
         return context
+    
+
+def add_user_to_workspace(request, workspace_id):
+    workspace = Workspace.objects.get(id=workspace_id)
+    
+    if request.method == "POST":
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+            workspace.allowed_users.add(user)
+            return redirect('workspace-tasks-list', workspace_id=workspace_id)
+        except User.DoesNotExist:
+            error_message = 'User with the entered username does not exist.'
+            return render(
+                request,
+                'add-user-to-workspace.html',
+                {'workspace': workspace, 'error_message': error_message}
+            )
+        
+    return render(
+        request,
+        'Tracking/add-user-to-workspace.html',
+        {'workspace': workspace}
+    )

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Task, Comment, Profile
+from .models import Task, Comment, Profile, Workspace
 
 class TaskCreationForm(forms.ModelForm):
     class Meta:
@@ -24,6 +24,20 @@ class TaskCreationForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Task's title"}),
             'description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Description's title"}),
             'due_date': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Select due date', 'type': 'date'}),
+        }
+
+
+class WorkspaceCreationForm(forms.ModelForm):
+    class Meta:
+        model = Workspace
+        fields = [
+            'title'
+        ]
+        labels = {
+            'title': ''
+        }
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name of workspace'})
         }
 
 
@@ -82,8 +96,16 @@ class TaskFilterForm(forms.Form):
         ('in_progress', "In progress"),
         ('done', 'Done')
     ]
+    PRIORITY_CHOICES = [
+        ('', 'All'),
+        ('low', "Low"),
+        ('medium', "Medium"),
+        ('high', 'High'),
+        ('critical', 'Critical')
+    ]
 
     status = forms.ChoiceField(choices=STATUS_CHOICES, label='status', required=False)
+    priority = forms.ChoiceField(choices=PRIORITY_CHOICES, label='priority', required=False)
 
 
 class TaskCommentForm(forms.ModelForm):

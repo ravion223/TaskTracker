@@ -7,6 +7,8 @@
     {% if workspace.user == request.user %}
       <a href="{% url 'add-user-to-workspace' workspace.id %}" class="btn btn-primary mb-3">Add user</a>
     {% endif %}
+    <a href="{% url 'kanban-board' workspace.id %}" class="btn btn-primary mb-3">Kanban board</a>
+    <a href="{% url 'allowed-users-list' workspace.id %}"class="btn btn-primary mb-3">Allowed users</a>
     <form method="get" class="mb-3">
       <div class="form-group">
         {{ form.status.label_tag }}

@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import TasksListView, TasksDetailView, TaskCreateView, TaskDeleteView, TaskUpdateView, TaskCompleteView, CommentUpdateView, CommentDeleteView, MyProfileDetailView, MyProfileUpdateView, WorkspacesListView, WorkspaceCreateView, WorkspaceTasksView, add_user_to_workspace
+from .views import TasksListView, TasksDetailView, TaskCreateView, TaskDeleteView, TaskUpdateView, TaskCompleteView, CommentUpdateView, CommentDeleteView, MyProfileDetailView, MyProfileUpdateView, WorkspacesListView, WorkspaceCreateView, WorkspaceTasksView, add_user_to_workspace, WorkspaceTasksKanbanBoardView, update_status, WorkspaceAllowedUsersView
 
 
 urlpatterns = [
@@ -17,4 +17,7 @@ urlpatterns = [
     path('my-profile/', login_required(MyProfileDetailView.as_view()), name='my-profile'),
     path('my-profile/update/', login_required(MyProfileUpdateView.as_view()), name='my-profile-update'),
     path('workspace/<int:workspace_id>/add-user/', login_required(add_user_to_workspace), name='add-user-to-workspace'),
+    path('workspace/<int:workspace_id>/kanban-board-tasks/', login_required(WorkspaceTasksKanbanBoardView.as_view()), name='kanban-board'),
+    path('update_status/<int:task_id>/<str:new_status>/', update_status, name='update_status'),
+    path('workspace/<int:workspace_id>/allowed-users/', login_required(WorkspaceAllowedUsersView.as_view()), name='allowed-users-list')
 ]

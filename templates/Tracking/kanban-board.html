@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block body %}
+  <div id="kanban-board">
+    <div class="column" id="todo">
+      <h2>Todo</h2>
+      {% for task in todo_tasks %}
+        <a href="{% url 'task-detail' task.pk %}">
+          <div class="task draggable text-secondary-emphasis" id="{{ task.id }}">{{ task.title }}</div>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="column" id="in_progress">
+      <h2>In Progress</h2>
+      {% for task in in_progress_tasks %}
+        <a href="{% url 'task-detail' task.pk %}">
+          <div class="task draggable text-secondary-emphasis" id="{{ task.id }}">{{ task.title }}</div>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="column" id="done">
+      <h2>Done</h2>
+      {% for task in done_tasks %}
+        <a href="{% url 'task-detail' task.pk %}">
+          <div class="task draggable text-secondary-emphasis" id="{{ task.id }}">{{ task.title }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  <style>
+    #kanban-board {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .column {
+      flex: 1;
+      background-color: #f4f4f4;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    .column h2 {
+      margin-top: 0;
+      padding-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .task {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .task:hover {
+      background-color: #f0f0f0;
+    }
+
+    .task.draggable {
+      cursor: pointer;
+    }
+
+    .task.draggable:hover {
+      background-color: #f9f9f9;
+    }
+
+    .column.droppable {
+      min-height: 100px;
+      border-style: dashed;
+    }
+
+    .column.droppable:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    $(document).ready(function() {
+        $(".task").draggable({
+            revert: true
+        });
+
+        $(".column").droppable({
+            drop: function(event, ui) {
+                var task_id = ui.draggable.attr("id");
+                var new_status = $(this).attr("id");
+                $.ajax({
+                    url: '/update_status/' + task_id + '/' + new_status + '/',
+                    success: function(data) {
+                        if (data.success) {
+                            // Get the task content including the <a> tag
+                            var taskContent = ui.draggable.html();
+
+                            // Construct the URL for the task detail view
+                            var taskDetailURL = '/task/' + task_id + '/';
+
+                            // Create a new task element with the preserved content and dynamic URL
+                            var newTask = $('<div class="task draggable" id="' + task_id + '"><a class="text-secondary-emphasis" href="' + taskDetailURL + '">' + taskContent + '</a></div>');
+
+                            // Append the new task element to the target column
+                            newTask.appendTo($(event.target));
+
+                            // Remove the original task element
+                            ui.draggable.remove();
+
+                            // Reapply draggable functionality to the new task element
+                            newTask.draggable({
+                                revert: true
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+  </script>
+{% endblock body %}

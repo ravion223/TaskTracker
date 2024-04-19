@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+
+Allowed users:
+{% if allowed_users_list %}
+    {% for user in allowed_users_list %}
+
+        {{ user }}
+
+    {% endfor %}
+{% else %}
+    No allowed users
+{% endif %}
+
+{% endblock body %}

@@ -2,7 +2,7 @@ from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.db.models import Q
 from django.forms import BaseModelForm
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, View
@@ -382,3 +382,90 @@ def add_user_to_workspace(request, workspace_id):
         'Tracking/add-user-to-workspace.html',
         {'workspace': workspace}
     )
+
+
+# def kanban_board(request):
+#     todo_tasks = Task.objects.filter(status='todo')
+#     in_progress_tasks = Task.objects.filter(status='in_progress')
+#     done_tasks = Task.objects.filter(status='done')
+#     return render(request, 'Tracking/kanban-board.html', {
+#         'todo_tasks': todo_tasks,
+#         'in_progress_tasks': in_progress_tasks,
+#         'done_tasks': done_tasks
+#     })
+
+
+class WorkspaceTasksKanbanBoardView(View):
+    template_name = 'Tracking/kanban-board.html'
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+
+        if workspace.user != self.request.user and not workspace.allowed_users.filter(id=self.request.user.id).exists():
+            raise Http404("You are not allowed to access this workspace.")
+        
+        todo_tasks = workspace.tasks.filter(status='todo')
+        in_progress_tasks = workspace.tasks.filter(status='in_progress')
+        done_tasks = workspace.tasks.filter(status='done')
+
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        # Prepare the context data
+        context = {
+            'profile': profile,
+            'workspace': workspace,
+            'todo_tasks': todo_tasks,
+            'in_progress_tasks': in_progress_tasks,
+            'done_tasks': done_tasks
+        }
+
+        # Render the template with the context data
+        return render(request, self.template_name, context)
+
+
+def update_status(request, task_id, new_status):
+    task = Task.objects.get(id=task_id)
+    task.status = new_status
+    task.save()
+    return JsonResponse({'success': True})
+
+
+class WorkspaceAllowedUsersView(View):
+    model = Workspace
+    template_name = 'Tracking/workspace-allowed-users.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+
+        if workspace.user != self.request.user and not workspace.allowed_users.filter(id=self.request.user.id).exists():
+            raise Http404("You are not allowed to access this workspace.")
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+        queryset = workspace.allowed_users.all()
+
+        return queryset
+    
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, id=kwargs.get('workspace_id'))
+        allowed_users_list = self.get_queryset(**kwargs)
+
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        context = {
+            'workspace': workspace,
+            'allowed_users_list': allowed_users_list,
+            'profile': profile
+        }
+
+        return render(
+            request,
+            'Tracking/workspace-allowed-users.html',
+            context
+        )

@@ -111,8 +111,12 @@ class TaskFilterForm(forms.Form):
 class TaskCommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['content']
+        fields = [
+            'content',
+            'comment_img'
+        ]
 
         widgets = {
-            'content': forms.TextInput(attrs={'class': 'form-control'})
+            'content': forms.TextInput(attrs={'class': 'form-control'}),
+            'comment_img': forms.FileInput(),
         }

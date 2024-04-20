@@ -87,7 +87,7 @@ class TasksDetailView(DetailView):
 
 
     def post(self, request, *args, **kwargs):
-        form = TaskCommentForm(request.POST)
+        form = TaskCommentForm(request.POST, request.FILES)
 
         if form.is_valid():
             comment = form.save(commit=False)
@@ -362,6 +362,9 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
 
 def add_user_to_workspace(request, workspace_id):
     workspace = Workspace.objects.get(id=workspace_id)
+    profile = None
+    if request.user.is_authenticated:
+        profile = get_object_or_404(Profile, user=request.user)
     
     if request.method == "POST":
         username = request.POST.get('username')
@@ -380,7 +383,7 @@ def add_user_to_workspace(request, workspace_id):
     return render(
         request,
         'Tracking/add-user-to-workspace.html',
-        {'workspace': workspace}
+        {'workspace': workspace, 'profile': profile}
     )
 
 

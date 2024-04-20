@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block body %}
+{% load custom_tags %}
+
 <div class="container mt-3">
   <h2>{{ task.title }}</h2>
   <div class="card mt-3">
@@ -25,7 +27,7 @@
     <a href="{% url 'task-update' task.pk %}" class="btn btn-warning ms-2">Edit</a>
   </div>
 
-  <form method="post" action="{% url 'task-detail' task.pk %}" class="mt-3">
+  <form method="post" action="{% url 'task-detail' task.pk %}" class="mt-3" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary">Add Comment</button>
@@ -37,6 +39,16 @@
         <div class="card-body">
           <h5 class="card-title">{{ comment.author.username }}</h5>
           <p class="card-text">{{ comment.content }}</p>
+          {% if comment.comment_img %}
+            {% if comment.comment_img.url|endswith:'.jpg' or  comment.comment_img.url|endswith:'.png' or comment.comment_img.url|endswith:'.jpeg' %}
+              <img src="{{ comment.comment_img.url }}" alt="Comment image" style="max-width: 480; max-height: 380;">
+            {% elif comment.comment_img.url|endswith:'.mp4' %}
+              <video width="480" height="380" controls src="{{ comment.comment_img.url }}" type="video/mp4"></video>
+            {% endif %}
+      
+          {% else %}
+            <a href="{{ comment.comment_img.url }}">Upload file</a>
+          {% endif %}
           <p class="card-text"><small class="text-muted">Posted: {{ comment.created_at }}</small></p>
           {% if comment.author_id == request.user.id %}
             <a href="{% url 'comment-delete' comment.pk %}" class="btn btn-sm btn-danger">Delete</a>

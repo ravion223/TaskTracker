@@ -17,3 +17,11 @@ a {
 .critical-bg-color {
     background-color: darkred; /* Define your custom background color here */
 }
+
+#content {
+    flex: 1
+}
+
+.btn.bs-light-text-emphasis {
+    color: white !important; /* Override button text color to white */
+}

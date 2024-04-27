@@ -70,7 +70,7 @@ class TasksDetailView(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         task = self.get_object()
-        if task.user != self.request.user:
+        if task.user != self.request.user and not task.workspace.allowed_users.filter(id=self.request.user.id).exists():
             raise Http404("You are not allowed to access this task.")
         return super().dispatch(request, *args, **kwargs)
 

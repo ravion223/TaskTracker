@@ -68,9 +68,6 @@
             {% elif comment.comment_img.url|endswith:'.mp4' %}
               <video width="480" height="380" controls src="{{ comment.comment_img.url }}" type="video/mp4"></video>
             {% endif %}
-      
-          {% else %}
-            <a href="{{ comment.comment_img.url }}">Upload file</a>
           {% endif %}
           <p class="card-text"><small class="text-muted">Posted: {{ comment.created_at }}</small></p>
         </div>

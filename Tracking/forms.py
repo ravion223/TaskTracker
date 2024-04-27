@@ -83,9 +83,9 @@ class ProfileUpdateForm(forms.ModelForm):
             'profile_pic': ''
         }
         widgets = {
-            'name_surname': forms.TextInput(attrs={'class': 'form-class', 'placeholder': 'Name and surname'}),
-            'bio': forms.TextInput(attrs={'class': 'form-class', 'placeholder': 'Bio'}),
-            'email': forms.EmailInput(attrs={'class': 'form-class', 'placeholder': 'Email'}),
+            'name_surname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name and surname'}),
+            'bio': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Bio'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
         }
 
 

@@ -1,14 +1,23 @@
 {% extends 'base.html' %}
 {% block body %}
 
-<form method="post">
-    {% csrf_token %}
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <button type="submit">Add User to Workspace</button>
-</form>
-{% if error_message %}
-    <p>{{ error_message }}</p>
-{% endif %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Add User to Workspace</button>
+            </form>
+            {% if error_messages %}
+                <p class="mt-3 text-danger">{{ error_messages }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
 {% endblock body %}

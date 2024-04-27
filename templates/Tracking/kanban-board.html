@@ -8,6 +8,9 @@
           <div class="task draggable text-secondary-emphasis" id="{{ task.id }}">{{ task.title }}</div>
         </a>
       {% endfor %}
+      <a href="{% url 'task-creation' workspace.pk %}">
+        <div class="task draggable text-secondary-emphasis create-new-task">+  Create new task</div>
+      </a>
     </div>
 
     <div class="column" id="in_progress">
@@ -17,6 +20,9 @@
           <div class="task draggable text-secondary-emphasis" id="{{ task.id }}">{{ task.title }}</div>
         </a>
       {% endfor %}
+      <a href="{% url 'task-creation' workspace.pk %}">
+        <div class="task draggable text-secondary-emphasis create-new-task">+  Create new task</div>
+      </a>
     </div>
 
     <div class="column" id="done">
@@ -26,6 +32,9 @@
           <div class="task draggable text-secondary-emphasis" id="{{ task.id }}">{{ task.title }}</div>
         </a>
       {% endfor %}
+      <a href="{% url 'task-creation' workspace.pk %}">
+        <div class="task draggable text-secondary-emphasis create-new-task sticky-bottom">+  Create new task</div>
+      </a>
     </div>
   </div>
   <style>
@@ -33,6 +42,10 @@
       display: flex;
       justify-content: space-between;
       padding: 20px;
+    }
+
+    .create-new-task {
+      background-color: #bdbbbb !important;
     }
 
     .column {
@@ -113,6 +126,9 @@
                             newTask.draggable({
                                 revert: true
                             });
+
+                            var createNewTaskDiv = $(event.target).find(".create-new-task");
+                            createNewTaskDiv.appendTo($(event.target));
                         }
                     }
                 });

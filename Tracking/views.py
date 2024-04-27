@@ -168,6 +168,30 @@ class MyProfileDetailView(LoginRequiredMixin, View):
             self.template_name,
             context
         )
+    
+
+class SomeProfileDetailView(LoginRequiredMixin, View):
+    model = Profile
+    template_name = 'Tracking/some-profile.html'
+    context_object_name = 'sprofile'
+
+    def get(self, request, *args, **kwargs):
+        profile = None
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+
+        sprofile = get_object_or_404(Profile, id=kwargs.get('profile_id'))
+
+        context = {
+            'profile': profile,
+            'sprofile': sprofile
+        }
+
+        return render(
+            request,
+            self.template_name,
+            context
+        )
 
 
 class TaskCreateView(LoginRequiredMixin, View):
@@ -376,8 +400,8 @@ def add_user_to_workspace(request, workspace_id):
             error_message = 'User with the entered username does not exist.'
             return render(
                 request,
-                'add-user-to-workspace.html',
-                {'workspace': workspace, 'error_message': error_message}
+                'Tracking/add-user-to-workspace.html',
+                {'workspace': workspace, 'error_message': error_message, 'profile': profile}
             )
         
     return render(
@@ -387,16 +411,18 @@ def add_user_to_workspace(request, workspace_id):
     )
 
 
-# def kanban_board(request):
-#     todo_tasks = Task.objects.filter(status='todo')
-#     in_progress_tasks = Task.objects.filter(status='in_progress')
-#     done_tasks = Task.objects.filter(status='done')
-#     return render(request, 'Tracking/kanban-board.html', {
-#         'todo_tasks': todo_tasks,
-#         'in_progress_tasks': in_progress_tasks,
-#         'done_tasks': done_tasks
-#     })
+class RemoveUserFromWorkspaceView(View):
+    def post(self, request, *args, **kwargs):
+        workspace_id = kwargs.get('workspace_id')
+        user_id = kwargs.get('user_id')
 
+        workspace = get_object_or_404(Workspace, id=workspace_id)
+        user = get_object_or_404(User, id=user_id)
+
+        workspace.allowed_users.remove(user)
+
+        return redirect('allowed-users-list', workspace_id=workspace_id)
+    
 
 class WorkspaceTasksKanbanBoardView(View):
     template_name = 'Tracking/kanban-board.html'
@@ -472,3 +498,14 @@ class WorkspaceAllowedUsersView(View):
             'Tracking/workspace-allowed-users.html',
             context
         )
+    
+
+def update_text(request, comment_id):
+    if request.method == 'POST':
+        new_text = request.POST.get('new_text')
+        commentary = get_object_or_404(Comment, id=comment_id)
+        commentary.content = new_text
+        commentary.save()
+        return JsonResponse({'message': 'Text updated successfully'})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+<br>
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-6 text-center">
+            {% if sprofile.profile_pic %}
+                <img class="rounded-circle mb-4" src="{{ sprofile.profile_pic.url }}" width="200" height="200" alt="Profile Picture">
+            {% else %}
+                <img class="rounded-circle mb-4" src="{% static 'img/default-profile-pic.jpg' %}" width="200" height="200" alt="Default Profile Picture">
+            {% endif %}
+            <h2>{{ sprofile.user.username }}</h2>
+            <p class="lead">{{ sprofile.name_surname }}</p>
+            <p>Bio: {{ sprofile.bio }}</p>
+            {% if sprofile.user.email is not Null %}
+                <p>Email: {{ sprofile.email }}</p>
+            {% else %}
+                <p>Email: not specified</p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock body %}

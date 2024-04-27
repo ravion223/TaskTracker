@@ -26,7 +26,7 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a class="dropdown-item" href="{% url 'my-profile' %}">Profile</a></li>
                         <li><a class="dropdown-item" href="{% url 'my-profile-update' %}">Edit profile</a></li>
-                        <li><a class="dropdown-item" href="authentication/logout">Logout</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                     </ul>
                 </div>
             {% endif %}

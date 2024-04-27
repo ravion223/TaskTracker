@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import TasksListView, TasksDetailView, TaskCreateView, TaskDeleteView, TaskUpdateView, TaskCompleteView, CommentUpdateView, CommentDeleteView, MyProfileDetailView, MyProfileUpdateView, WorkspacesListView, WorkspaceCreateView, WorkspaceTasksView, add_user_to_workspace, WorkspaceTasksKanbanBoardView, update_status, WorkspaceAllowedUsersView
+from .views import TasksListView, TasksDetailView, TaskCreateView, TaskDeleteView, TaskUpdateView, TaskCompleteView, CommentUpdateView, CommentDeleteView, MyProfileDetailView, MyProfileUpdateView, WorkspacesListView, WorkspaceCreateView, WorkspaceTasksView, add_user_to_workspace, WorkspaceTasksKanbanBoardView, update_status, WorkspaceAllowedUsersView, update_text, SomeProfileDetailView, RemoveUserFromWorkspaceView
 
 
 urlpatterns = [
@@ -15,9 +15,12 @@ urlpatterns = [
     path('comment/update/<int:pk>/', login_required(CommentUpdateView.as_view()), name='comment-update'),
     path('comment/delete/<int:pk>/', login_required(CommentDeleteView.as_view()), name='comment-delete'),
     path('my-profile/', login_required(MyProfileDetailView.as_view()), name='my-profile'),
+    path('profile/<int:profile_id>/', login_required(SomeProfileDetailView.as_view()), name='some-profile'),
     path('my-profile/update/', login_required(MyProfileUpdateView.as_view()), name='my-profile-update'),
     path('workspace/<int:workspace_id>/add-user/', login_required(add_user_to_workspace), name='add-user-to-workspace'),
     path('workspace/<int:workspace_id>/kanban-board-tasks/', login_required(WorkspaceTasksKanbanBoardView.as_view()), name='kanban-board'),
     path('update_status/<int:task_id>/<str:new_status>/', update_status, name='update_status'),
-    path('workspace/<int:workspace_id>/allowed-users/', login_required(WorkspaceAllowedUsersView.as_view()), name='allowed-users-list')
+    path('workspace/<int:workspace_id>/allowed-users/', login_required(WorkspaceAllowedUsersView.as_view()), name='allowed-users-list'),
+    path('update-text/<int:comment_id>/', login_required(update_text), name='update-comment-text'),
+    path('workspace/<int:workspace_id>/user/<int:user_id>/delete/', login_required(RemoveUserFromWorkspaceView.as_view()), name='remove-user-from-workspace')
 ]
